@@ -1,31 +1,47 @@
+import { useState, useEffect } from "react";
+import CircleLoader from "react-spinners/CircleLoader";
+
 import MeetupList from "../components/meetups/MeetupList";
 
-const DUMMY_DATA = [
-  {
-    id: "m1",
-    title: "This is a first meetup",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/2560px-Stadtbild_M%C3%BCnchen.jpg",
-    address: "Meetupstreet 5, 12345 Meetup City",
-    description:
-      "This is a first, amazing meetup which you definitely should not miss. It will be a lot of fun!",
-  },
-  {
-    id: "m2",
-    title: "This is a second meetup",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/2560px-Stadtbild_M%C3%BCnchen.jpg",
-    address: "Meetupstreet 5, 12345 Meetup City",
-    description:
-      "This is a first, amazing meetup which you definitely should not miss. It will be a lot of fun!",
-  },
-];
-
 function AllMeetupsPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [meetupData, setMeetupData] = useState([]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(
+      "https://react-fundamentals-2cf0c-default-rtdb.firebaseio.com/meetups.json"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const meetups = Object.entries(data).map(([id, data]) => ({
+          id,
+          ...data,
+        }));
+
+        setIsLoading(false);
+        setMeetupData(meetups);
+      });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          position: `absolute`,
+          top: `50%`,
+          left: `50%`,
+        }}
+      >
+        <CircleLoader color="#77002e" size={150} />
+      </div>
+    );
+  }
+
   return (
     <section>
       <h1>All Meetups</h1>
-      <MeetupList data={DUMMY_DATA} />
+      <MeetupList data={meetupData} />
     </section>
   );
 }
